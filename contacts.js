@@ -3,10 +3,22 @@ const path = require('path');
 
 const contactsPath = path.join(__dirname, './db/contacts.json');
 
+async function getContacts() {
+  try {
+    const contactsList = await fs.readFile(contactsPath);
+    return JSON.parse(contactsList);
+  } catch (error) {
+    console.log(error);
+  }
+}
+function setContacts(contacts) {
+  const stringifiedContacts = JSON.stringify(contacts);
+  fs.writeFile(contactsPath, stringifiedContacts);
+}
+
 async function listContacts() {
   try {
-    const contactList = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(contactList);
+    const contacts = await getContacts();
     console.table(contacts);
   } catch (error) {
     // console.warn(`\x1B[31m ${error}`);
@@ -14,16 +26,38 @@ async function listContacts() {
   }
 }
 
-function getContactById(contactId) {
-  // ...твій код
+async function getContactById(contactId) {
+  try {
+    const contactList = await getContacts();
+    const contact = contactList.find(({ id }) => id === contactId);
+    if (!contact) {
+      throw new Error('The requested contact does not exist!');
+    }
+    console.log(contact);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function removeContact(contactId) {
-  // ...твій код
+async function removeContact(contactId) {
+  try {
+    const contactList = await getContacts();
+    const contactIndex = contactList.findIndex(({ id }) => id === contactId);
+    if (contactIndex === -1) {
+      throw new Error('The requested contact does not exist!');
+    }
+    contactList.splice(contactIndex, 1);
+    setContacts(contactList);
+    console.log('The contact was removed successfully!');
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function addContact(name, email, phone) {
   // ...твій код
 }
 
-listContacts();
+// listContacts();
+// getContactById('3');
+// removeContact('11');
