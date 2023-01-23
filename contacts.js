@@ -4,15 +4,12 @@ const path = require('path');
 const contactsPath = path.join(__dirname, './db/contacts.json');
 
 async function getContacts() {
-  try {
-    const contactsList = await fs.readFile(contactsPath);
-    return JSON.parse(contactsList);
-  } catch (error) {
-    console.log(error);
-  }
+  const contactsList = await fs.readFile(contactsPath);
+  return JSON.parse(contactsList);
 }
+
 function setContacts(contacts) {
-  const stringifiedContacts = JSON.stringify(contacts);
+  const stringifiedContacts = JSON.stringify(contacts, null, '\t');
   fs.writeFile(contactsPath, stringifiedContacts);
 }
 
@@ -21,7 +18,6 @@ async function listContacts() {
     const contacts = await getContacts();
     console.table(contacts);
   } catch (error) {
-    // console.warn(`\x1B[31m ${error}`);
     console.log(error);
   }
 }
@@ -29,7 +25,7 @@ async function listContacts() {
 async function getContactById(contactId) {
   try {
     const contactList = await getContacts();
-    const contact = contactList.find(({ id }) => id === contactId);
+    const contact = contactList.find(({ id }) => id === contactId.toString());
     if (!contact) {
       throw new Error('The requested contact does not exist!');
     }
@@ -42,7 +38,9 @@ async function getContactById(contactId) {
 async function removeContact(contactId) {
   try {
     const contactList = await getContacts();
-    const contactIndex = contactList.findIndex(({ id }) => id === contactId);
+    const contactIndex = contactList.findIndex(
+      ({ id }) => id === contactId.toString()
+    );
     if (contactIndex === -1) {
       throw new Error('The requested contact does not exist!');
     }
@@ -54,10 +52,32 @@ async function removeContact(contactId) {
   }
 }
 
-function addContact(name, email, phone) {
-  // ...твій код
+const generateId = array => `${Number(array[array.length - 1].id) + 1}`;
+const normalizer = (...args) => args.map(element => element.toString().trim());
+
+async function addContact(inputName = '', inputEmail = '', inputPhone = '') {
+  try {
+    const [name, email, phone] = normalizer(inputName, inputEmail, inputPhone);
+    if (!name || !email || !phone) {
+      throw new Error('All fields are required!');
+    }
+    const contactsList = await getContacts();
+    const newContacts = {
+      id: generateId(contactsList),
+      name,
+      email,
+      phone,
+    };
+    setContacts([...contactsList, newContacts]);
+    console.log('The contact was added successfully!');
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-// listContacts();
-// getContactById('3');
-// removeContact('11');
+module.exports = {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+};
