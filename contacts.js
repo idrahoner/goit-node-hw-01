@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const shortid = require('shortid');
 const path = require('path');
 
 const contactsPath = path.join(__dirname, './db/contacts.json');
@@ -52,18 +53,22 @@ async function removeContact(contactId) {
   }
 }
 
-const generateId = array => `${Number(array[array.length - 1].id) + 1}`;
-const normalizer = (...args) => args.map(element => element.toString().trim());
+const normalizeString = (...args) =>
+  args.map(element => element.toString().trim());
 
 async function addContact(inputName = '', inputEmail = '', inputPhone = '') {
   try {
-    const [name, email, phone] = normalizer(inputName, inputEmail, inputPhone);
+    const [name, email, phone] = normalizeString(
+      inputName,
+      inputEmail,
+      inputPhone
+    );
     if (!name || !email || !phone) {
       throw new Error('All fields are required!');
     }
     const contactsList = await getContacts();
     const newContacts = {
-      id: generateId(contactsList),
+      id: shortid.generate(),
       name,
       email,
       phone,

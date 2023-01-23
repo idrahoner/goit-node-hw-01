@@ -1,4 +1,5 @@
 goit-node-hw-01 screenshots:
 
-![list](./assets/list.png); ![get](./assets/add.png); ![add](./assets/add.png);
-![remove](./assets/remove.png);
+Action: "List" ![list](./assets/list.png) Action: "Get" ![get](./assets/get.png)
+Action: "Add" ![add](./assets/add.png) Action: "Remove"
+![remove](./assets/remove.png)
